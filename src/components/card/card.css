@@ -1,0 +1,35 @@
+.card {
+    display: flex;
+    flex-grow: 1;
+    max-width: 451px;
+    height: 279px;
+    box-shadow: 4px 8px 12px -1px rgba(34, 60, 80, 0.2);
+}
+.card_img {
+    flex-shrink: 0;
+    width: fit-content;
+    height: 100%;
+}
+.card_body {
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    padding: 10px 20px;
+}
+.card_title {
+    margin: 0;
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 400;
+    font-style: normal;
+}
+.card_date {
+    color: #827E7E;
+}
+.card_text-container {
+    overflow: auto;
+}
+.card_text {
+    margin: 0;
+    overflow: auto;
+}
