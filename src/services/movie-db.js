@@ -16,15 +16,18 @@ export default class MovieDBService {
     }
     return await res.json()
   }
-  async getMovies(keyWord) {
+  async getData(keyWord, page = 1) {
     const searchEndPoint = '/3/search/movie'
-    const parameters = `?query=${keyWord}&include_adult=true&language=en-US&page=1`
+    const parameters = `?query=${keyWord}&include_adult=true&language=en-US&page=${page}`
     const url = this._apiBase + searchEndPoint + parameters
     const res = await this.getResource(url, this.options)
-    return this._transformMoviesData(res.results)
+    if (keyWord.length !== 0 && res.results.length === 0) {
+      throw new Error('No results.')
+    }
+    return this._transformData(res)
   }
-  _transformMoviesData(movies) {
-    const formatData = movies.map((movie) => {
+  _transformData(data) {
+    const formatMoviesData = data.results.map((movie) => {
       return {
         id: movie.id,
         genreIds: movie.genre_ids,
@@ -35,6 +38,12 @@ export default class MovieDBService {
         voteAverage: movie.vote_average,
       }
     })
+    const formatData = {
+      page: data.page,
+      results: formatMoviesData,
+      totalPages: data.total_pages,
+      totalResults: data.total_results,
+    }
     return formatData
   }
 }
