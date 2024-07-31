@@ -1,0 +1,11 @@
+.rated__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 36px 0;
+}
+
+.rated__pagination {
+    margin-top: 36px;
+}

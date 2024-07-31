@@ -1,17 +1,46 @@
-import React, { useState } from 'react'
-import { Spin, Alert, Input, Pagination } from 'antd'
-import { Offline, Online } from 'react-detect-offline'
-import { debounce } from 'lodash'
+import React, { useState, useEffect } from 'react'
+import { Alert, Tabs } from 'antd'
 import './movies-app.css'
-import Cards from '../cards'
-import MovieDBService from '../../services/movie-db'
+import MovieDBService from '../../services/movies-db'
+import SearchContainer from '../search-container'
+import Rated from '../rated'
+import { GenresProvider } from '../genres-context'
 
 export default function MoviesApp() {
-  const [movies, setMovies] = useState([])
-  const [isLoaded, setIsLoaded] = useState(true)
+  const [guestSessionId, setGuestSessionId] = useState('')
+  const [genres, setGenres] = useState({})
   const [error, setError] = useState(null)
-  const [pages, setPages] = useState({ page: 0, totalPages: 0, totalResults: 0 })
-  const [value, setValue] = useState('')
+  const [activeTab, setActiveTab] = useState('search')
+  const [isOnline, setIsOnline] = useState(navigator.onLine)
+
+  useEffect(() => {
+    const moviesDB = new MovieDBService()
+    moviesDB.createNewGuestSession().then(
+      (id) => {
+        setGuestSessionId(id)
+      },
+      (error) => {
+        setError(error)
+      }
+    )
+    moviesDB.getGenres().then(
+      (genres) => {
+        setGenres(genres)
+      },
+      (error) => {
+        setError(error)
+      }
+    )
+  }, [])
+  useEffect(() => {
+    window.addEventListener('online', () => setIsOnline(true))
+    window.addEventListener('offline', () => setIsOnline(false))
+
+    return () => {
+      window.removeEventListener('online', () => setIsOnline(true))
+      window.removeEventListener('offline', () => setIsOnline(false))
+    }
+  }, [])
 
   const renderErrorMessage = (error) => {
     if (!error) {
@@ -21,49 +50,14 @@ export default function MoviesApp() {
       return (
         <Alert
           message={'Oh, man!'}
-          description={'Network Error! Try to to turn on a VPN and reload the page'}
+          description={'Network Error! Try to to turn on a VPN and reload the page.'}
           type="error"
         />
       )
     }
-    if (error.message === 'No results.') {
-      return <Alert message={'No results for your request.'} description={'Keep it simple!'} type="info" />
-    }
     return <Alert message={'Wow! ' + error.name} description={error.message} type="error" />
   }
-  const moviesDB = new MovieDBService()
-  const search = (e) => {
-    setIsLoaded(false)
-    setError(null)
-    setValue(e.target.value)
 
-    moviesDB.getData(e.target.value).then(
-      ({ results, totalPages, page, totalResults }) => {
-        setPages({ page, totalPages, totalResults })
-        setIsLoaded(true)
-        setMovies(results)
-      },
-      (error) => {
-        setPages({ page: 0, totalPages: 0, totalResults: 0 })
-        setIsLoaded(true)
-        setError(error)
-      }
-    )
-  }
-  const changePage = (page) => {
-    moviesDB.getData(value, page).then(
-      ({ results, totalPages, page, totalResults }) => {
-        setPages({ page, totalPages, totalResults })
-        setIsLoaded(true)
-        setMovies(results)
-      },
-      (error) => {
-        setPages({ page: 0, totalPages: 0, totalResults: 0 })
-        setIsLoaded(true)
-        setError(error)
-      }
-    )
-  }
   const offlineMessage = (
     <Alert
       message="What the heck with your network?"
@@ -71,38 +65,41 @@ export default function MoviesApp() {
       type="warning"
     />
   )
-  const hasData = !(!isLoaded || error)
-  const spinner = !isLoaded ? <Spin size="large" /> : null
-  const cards = hasData ? <Cards movies={movies} /> : null
-  const pagination =
-    pages.totalPages > 1 ? (
-      <Pagination
-        className="movies-app_pagination"
-        align="center"
-        defaultPageSize={20}
-        current={pages.page}
-        total={pages.totalResults}
-        showSizeChanger={false}
-        responsive
-        onChange={changePage}
-      />
-    ) : null
+  const handleChange = (key) => {
+    if (key === 'rated') {
+      setActiveTab('rated')
+    } else {
+      setActiveTab('search')
+    }
+  }
+  const tabs = (
+    <Tabs
+      onChange={handleChange}
+      className="movies-app__tabs"
+      indicator={{
+        size: 65,
+        align: 'center',
+      }}
+      centered
+      defaultActiveKey="1"
+      items={[
+        {
+          label: 'Search',
+          key: 'search',
+          children: <SearchContainer sessionId={guestSessionId} />,
+        },
+        {
+          label: 'Rated',
+          key: 'rated',
+          children: <Rated sessionId={guestSessionId} isActive={activeTab === 'rated'} />,
+        },
+      ]}
+    />
+  )
+  const app = <section className="movies-app container">{error ? renderErrorMessage(error) : tabs}</section>
   return (
-    <main className="main">
-      <section className="movies-app container">
-        <div className="movies-app_header">
-          <Input type="search" onChange={debounce(search, 600)} placeholder="Type to search..." autoFocus />
-        </div>
-        <div className="movies-app_body">
-          <Online>
-            {renderErrorMessage(error)}
-            {spinner}
-            {cards}
-            {pagination}
-          </Online>
-          <Offline>{offlineMessage}</Offline>
-        </div>
-      </section>
-    </main>
+    <GenresProvider value={genres}>
+      <main className="main">{isOnline ? app : offlineMessage}</main>
+    </GenresProvider>
   )
 }

@@ -1,10 +1,15 @@
 import React from 'react'
-import { Tag } from 'antd'
+import { Rate } from 'antd'
 import { format, parseISO } from 'date-fns'
 import './card.css'
 import noPosterPic from './no-poster.png'
-export default function Card(data) {
-  const { title, releaseDate, overview, posterPath } = data.movie
+import MovieDBService from '../../services/movies-db'
+import Tags from '../tags/tags'
+
+const moviesDB = new MovieDBService()
+
+export default function Card({ movie, sessionId }) {
+  const { title, releaseDate, overview, posterPath, voteAverage, id, rating, genreIds } = movie
   const formatDate = releaseDate ? format(parseISO(releaseDate), 'MMMM dd, yyyy') : 'no data available'
   const posterUrl = posterPath ? 'https://image.tmdb.org/t/p/original' + posterPath : noPosterPic
   const cutText = (text) => {
@@ -25,20 +30,39 @@ export default function Card(data) {
     const cut = cutArr.join(' ') + '...'
     return cut
   }
+  const rate = voteAverage.toFixed(1)
+  let rateClassNames = 'card__rate'
+  if (voteAverage < 3) {
+    rateClassNames = rateClassNames + ' card__rate_bad'
+  } else if (voteAverage < 5) {
+    rateClassNames = rateClassNames + ' card__rate_ok'
+  } else if (voteAverage < 7) {
+    rateClassNames = rateClassNames + ' card__rate_good'
+  } else {
+    rateClassNames = rateClassNames + ' card__rate_super'
+  }
+  const handleChange = (value) => {
+    moviesDB.rateMovie(id, sessionId, value).then(
+      () => {},
+      (error) => console.error(error)
+    )
+  }
+  const currentRate = rating ? rating : 0
 
   return (
     <article className="card">
-      <img className="card_img" alt="movie poster" src={posterUrl} />
-      <div className="card_body">
-        <h2 className="card_title">{title}</h2>
-        <span className="card_date">{formatDate}</span>
-        <span className="tags">
-          <Tag>Action</Tag>
-          <Tag>Drama</Tag>
-        </span>
-        <div className="card_text-container">
-          <p className="card_text">{cutText(overview)}</p>
+      <img className="card__img" alt="movie poster" src={posterUrl} />
+      <div className="card__description">
+        <div className="card__header">
+          <h2 className="card__title">{title}</h2>
+          <span className={rateClassNames}>{rate}</span>
         </div>
+        <span className="card__date">{formatDate}</span>
+        <Tags genreIds={genreIds} />
+        <div className="card__text-container">
+          <p className="card__text">{cutText(overview)}</p>
+        </div>
+        <Rate className="card__stars" allowHalf count={10} defaultValue={currentRate} onChange={handleChange} />
       </div>
     </article>
   )

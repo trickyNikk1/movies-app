@@ -1,0 +1,11 @@
+.search-container__body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 36px 0;
+}
+
+.search-container__pagination {
+    margin-top: 36px;
+}

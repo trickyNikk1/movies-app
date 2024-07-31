@@ -1,10 +1,2 @@
-.movies-app_body {
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 36px 0;
-}
-.movies-app_pagination {
-    margin-top: 36px;
-}
+
+

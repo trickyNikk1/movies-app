@@ -13,6 +13,7 @@ body {
 *,
 *::before,
 *::after {
+    font-family: "Inter", "system-ui";
     box-sizing: inherit;
 }
 
