@@ -9,7 +9,7 @@ import MediaQuery from 'react-responsive'
 
 const moviesDB = new MovieDBService()
 
-export default function Card({ movie = {}, sessionId = '' }) {
+export default function Card({ movie = {}, sessionId = '', onRate = () => {} }) {
   const { title, releaseDate, overview, posterPath, voteAverage, id, rating, genreIds } = movie
   const formatDate = releaseDate ? format(parseISO(releaseDate), 'MMMM dd, yyyy') : 'no data available'
   const posterUrl = posterPath ? 'https://image.tmdb.org/t/p/w300' + posterPath : noPosterPic
@@ -42,6 +42,7 @@ export default function Card({ movie = {}, sessionId = '' }) {
     rateClassNames = rateClassNames + ' card__rate_super'
   }
   const handleChange = (value) => {
+    onRate(movie, value)
     moviesDB.rateMovie(id, sessionId, value).then(
       () => {},
       (error) => console.error(error)

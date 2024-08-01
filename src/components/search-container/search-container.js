@@ -9,7 +9,7 @@ import MovieDBService from '../../services/movies-db'
 const { ErrorBoundary } = Alert
 const moviesDB = new MovieDBService()
 
-export default function SearchContainer({ sessionId = '' }) {
+export default function SearchContainer({ sessionId = '', onRate = () => {}, rated = [] }) {
   const [movies, setMovies] = useState([])
   const [isLoaded, setIsLoaded] = useState(true)
   const [error, setError] = useState(null)
@@ -71,7 +71,7 @@ export default function SearchContainer({ sessionId = '' }) {
 
   const hasData = !(!isLoaded || error)
   const spinner = !isLoaded ? <Spin size="large" /> : null
-  const cards = hasData ? <Cards movies={movies} sessionId={sessionId} /> : null
+  const cards = hasData ? <Cards movies={movies} sessionId={sessionId} onRate={onRate} rated={rated} /> : null
   const pagination =
     pages.totalPages > 1 ? (
       <Pagination
@@ -102,4 +102,6 @@ export default function SearchContainer({ sessionId = '' }) {
 
 SearchContainer.propTypes = {
   sessionId: PropTypes.string,
+  onRate: PropTypes.func,
+  rated: PropTypes.array,
 }

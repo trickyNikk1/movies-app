@@ -14,6 +14,7 @@ export default function MoviesApp() {
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('search')
   const [isOnline, setIsOnline] = useState(navigator.onLine)
+  const [rated, setRated] = useState([])
 
   useEffect(() => {
     const moviesDB = new MovieDBService()
@@ -45,7 +46,12 @@ export default function MoviesApp() {
       window.removeEventListener('offline', () => setIsOnline(false))
     }
   }, [])
-
+  const onRate = (movie, rating) => {
+    setRated((prevRated) => {
+      const newRated = [{ ...movie, rating }]
+      return newRated.concat(prevRated)
+    })
+  }
   const renderErrorMessage = (error) => {
     if (!error) {
       return null
@@ -92,12 +98,12 @@ export default function MoviesApp() {
         {
           label: 'Search',
           key: 'search',
-          children: <SearchContainer sessionId={guestSessionId} />,
+          children: <SearchContainer onRate={onRate} sessionId={guestSessionId} rated={rated} />,
         },
         {
           label: 'Rated',
           key: 'rated',
-          children: <Rated sessionId={guestSessionId} isActive={activeTab === 'rated'} />,
+          children: <Rated onRate={onRate} sessionId={guestSessionId} isActive={activeTab === 'rated'} />,
         },
       ]}
     />
