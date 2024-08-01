@@ -1,22 +1,21 @@
-import React from 'react'
 import { Rate } from 'antd'
 import { format, parseISO } from 'date-fns'
 import './card.css'
 import noPosterPic from './no-poster.png'
 import MovieDBService from '../../services/movies-db'
 import Tags from '../tags/tags'
+import MediaQuery from 'react-responsive'
 
 const moviesDB = new MovieDBService()
 
 export default function Card({ movie, sessionId }) {
   const { title, releaseDate, overview, posterPath, voteAverage, id, rating, genreIds } = movie
   const formatDate = releaseDate ? format(parseISO(releaseDate), 'MMMM dd, yyyy') : 'no data available'
-  const posterUrl = posterPath ? 'https://image.tmdb.org/t/p/original' + posterPath : noPosterPic
-  const cutText = (text) => {
+  const posterUrl = posterPath ? 'https://image.tmdb.org/t/p/w300' + posterPath : noPosterPic
+  const cutText = (text, limit = 20) => {
     if (text.length === 0) {
       return '...'
     }
-    const limit = 20
     const textArr = text.split(' ')
     if (textArr.length <= limit) {
       return text
@@ -48,8 +47,7 @@ export default function Card({ movie, sessionId }) {
     )
   }
   const currentRate = rating ? rating : 0
-
-  return (
+  const card = (
     <article className="card">
       <img className="card__img" alt="movie poster" src={posterUrl} />
       <div className="card__description">
@@ -65,5 +63,32 @@ export default function Card({ movie, sessionId }) {
         <Rate className="card__stars" allowHalf count={10} defaultValue={currentRate} onChange={handleChange} />
       </div>
     </article>
+  )
+  const cardMobile = (
+    <article className="card">
+      <div className="card__description">
+        <div className="card__header">
+          <img className="card__img" alt="movie poster" src={posterUrl} />
+          <div className="card__header-inner">
+            <h2 className="card__title">{title}</h2>
+            <span className="card__date">{formatDate}</span>
+            <br></br>
+            <Tags genreIds={genreIds} />
+          </div>
+          <span className={rateClassNames}>{rate}</span>
+        </div>
+        <div className="card__text-container">
+          <p className="card__text">{cutText(overview, 30)}</p>
+        </div>
+        <Rate className="card__stars" allowHalf count={10} defaultValue={currentRate} onChange={handleChange} />
+      </div>
+    </article>
+  )
+
+  return (
+    <>
+      <MediaQuery minWidth={520.1}>{card}</MediaQuery>
+      <MediaQuery maxWidth={520}>{cardMobile}</MediaQuery>
+    </>
   )
 }

@@ -42,5 +42,10 @@ body {
     margin: 0 auto;
     background-color: #fff;
 }
+@media (max-width: 520px) {
+    .container {
+        padding: 16px 20px;
+    }
+}
 
 

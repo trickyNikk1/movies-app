@@ -5,3 +5,9 @@
     gap: 37px;
     padding-bottom: 36px;
 }
+@media (max-width: 520px) {
+    .cards {
+        flex-direction: column;
+        gap: 10px;
+    }
+}
