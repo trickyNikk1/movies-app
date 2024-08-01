@@ -4,6 +4,7 @@ import './movies-app.css'
 import MovieDBService from '../../services/movies-db'
 import SearchContainer from '../search-container'
 import Rated from '../rated'
+import ErrorMessage from '../error-message'
 import { GenresProvider } from '../genres-context'
 const { ErrorBoundary } = Alert
 
@@ -52,21 +53,6 @@ export default function MoviesApp() {
       return newRated.concat(prevRated)
     })
   }
-  const renderErrorMessage = (error) => {
-    if (!error) {
-      return null
-    }
-    if (error.message === 'NetworkError when attempting to fetch resource.') {
-      return (
-        <Alert
-          message={'Oh, man!'}
-          description={'Network Error! Try to to turn on a VPN and reload the page.'}
-          type="error"
-        />
-      )
-    }
-    return <Alert message={'Wow! ' + error.name} description={error.message} type="error" />
-  }
 
   const offlineMessage = (
     <Alert
@@ -76,11 +62,7 @@ export default function MoviesApp() {
     />
   )
   const handleChange = (key) => {
-    if (key === 'rated') {
-      setActiveTab('rated')
-    } else {
-      setActiveTab('search')
-    }
+    key === 'rated' ? setActiveTab('rated') : setActiveTab('search')
   }
   const hasData = !(!isLoaded || error)
   const spinner = !isLoaded ? <Spin size="large" /> : null
@@ -110,7 +92,7 @@ export default function MoviesApp() {
   ) : null
   const app = (
     <section className="movies-app container">
-      {renderErrorMessage(error)}
+      <ErrorMessage error={error} />
       {tabs}
       {spinner}
     </section>

@@ -4,6 +4,7 @@ import { Spin, Alert, Pagination } from 'antd'
 import './rated.css'
 import Cards from '../cards'
 import MovieDBService from '../../services/movies-db'
+import ErrorMessage from '../error-message'
 
 const { ErrorBoundary } = Alert
 const moviesDB = new MovieDBService()
@@ -50,25 +51,6 @@ export default function Rated({ sessionId = '', isActive = false, onRate = () =>
     )
   }
 
-  const renderErrorMessage = (error) => {
-    if (!error) {
-      return null
-    }
-    if (error.message === 'NetworkError when attempting to fetch resource.') {
-      return (
-        <Alert
-          message={'Oh, man!'}
-          description={'Network Error! Try to to turn on a VPN and reload the page'}
-          type="error"
-        />
-      )
-    }
-    if (error.message === 'Could not fetch undefined, received 404') {
-      return <Alert message={'No rated movies.'} description={'Rate something to add it here.'} type="info" />
-    }
-    return <Alert message={'Wow! ' + error.name} description={error.message} type="error" />
-  }
-
   const hasData = !(!isLoaded || error)
   const spinner = !isLoaded ? <Spin size="large" /> : null
   const cards = hasData ? <Cards movies={movies} sessionId={sessionId} onRate={onRate} /> : null
@@ -89,7 +71,7 @@ export default function Rated({ sessionId = '', isActive = false, onRate = () =>
     <ErrorBoundary>
       <div className="rated">
         <div className="rated__body">
-          {renderErrorMessage(error)}
+          <ErrorMessage error={error} />
           {spinner}
           {cards}
           {pagination}

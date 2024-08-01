@@ -5,6 +5,7 @@ import { debounce } from 'lodash'
 import './search-container.css'
 import Cards from '../cards'
 import MovieDBService from '../../services/movies-db'
+import ErrorMessage from '../error-message'
 
 const { ErrorBoundary } = Alert
 const moviesDB = new MovieDBService()
@@ -50,25 +51,6 @@ export default function SearchContainer({ sessionId = '', onRate = () => {}, rat
     )
   }
 
-  const renderErrorMessage = (error) => {
-    if (!error) {
-      return null
-    }
-    if (error.message === 'NetworkError when attempting to fetch resource.') {
-      return (
-        <Alert
-          message={'Oh, man!'}
-          description={'Network Error! Try to to turn on a VPN and reload the page'}
-          type="error"
-        />
-      )
-    }
-    if (error.message === 'No results.') {
-      return <Alert message={'No results for your request.'} description={'Keep it simple!'} type="info" />
-    }
-    return <Alert message={'Wow! ' + error.name} description={error.message} type="error" />
-  }
-
   const hasData = !(!isLoaded || error)
   const spinner = !isLoaded ? <Spin size="large" /> : null
   const cards = hasData ? <Cards movies={movies} sessionId={sessionId} onRate={onRate} rated={rated} /> : null
@@ -90,7 +72,7 @@ export default function SearchContainer({ sessionId = '', onRate = () => {}, rat
       <div className="search-container">
         <Input type="search" onChange={debounce(search, 600)} placeholder="Type to search..." autoFocus />
         <div className="search-container__body">
-          {renderErrorMessage(error)}
+          <ErrorMessage error={error} />
           {spinner}
           {cards}
           {pagination}
