@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Alert, Tabs } from 'antd'
+import { Alert, Tabs, Spin } from 'antd'
 import './movies-app.css'
 import MovieDBService from '../../services/movies-db'
 import SearchContainer from '../search-container'
@@ -10,6 +10,7 @@ const { ErrorBoundary } = Alert
 export default function MoviesApp() {
   const [guestSessionId, setGuestSessionId] = useState('')
   const [genres, setGenres] = useState({})
+  const [isLoaded, setIsLoaded] = useState(false)
   const [error, setError] = useState(null)
   const [activeTab, setActiveTab] = useState('search')
   const [isOnline, setIsOnline] = useState(navigator.onLine)
@@ -19,9 +20,11 @@ export default function MoviesApp() {
     moviesDB.createNewGuestSession().then(
       (id) => {
         setGuestSessionId(id)
+        setIsLoaded(true)
       },
       (error) => {
         setError(error)
+        setIsLoaded(true)
       }
     )
     moviesDB.getGenres().then(
@@ -73,7 +76,9 @@ export default function MoviesApp() {
       setActiveTab('search')
     }
   }
-  const tabs = (
+  const hasData = !(!isLoaded || error)
+  const spinner = !isLoaded ? <Spin size="large" /> : null
+  const tabs = hasData ? (
     <Tabs
       onChange={handleChange}
       className="movies-app__tabs"
@@ -96,8 +101,14 @@ export default function MoviesApp() {
         },
       ]}
     />
+  ) : null
+  const app = (
+    <section className="movies-app container">
+      {renderErrorMessage(error)}
+      {tabs}
+      {spinner}
+    </section>
   )
-  const app = <section className="movies-app container">{error ? renderErrorMessage(error) : tabs}</section>
   return (
     <ErrorBoundary>
       <GenresProvider value={genres}>
