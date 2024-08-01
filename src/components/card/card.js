@@ -9,7 +9,7 @@ import MediaQuery from 'react-responsive'
 
 const moviesDB = new MovieDBService()
 
-export default function Card({ movie, sessionId }) {
+export default function Card({ movie = {}, sessionId = '' }) {
   const { title, releaseDate, overview, posterPath, voteAverage, id, rating, genreIds } = movie
   const formatDate = releaseDate ? format(parseISO(releaseDate), 'MMMM dd, yyyy') : 'no data available'
   const posterUrl = posterPath ? 'https://image.tmdb.org/t/p/w300' + posterPath : noPosterPic
@@ -50,7 +50,9 @@ export default function Card({ movie, sessionId }) {
   const currentRate = rating ? rating : 0
   const card = (
     <article className="card">
-      <img className="card__img" alt="movie poster" src={posterUrl} />
+      <div className="card__img-wrapper">
+        <img className="card__img" alt="movie poster" src={posterUrl} />
+      </div>
       <div className="card__description">
         <div className="card__header">
           <h2 className="card__title">{title}</h2>
@@ -69,7 +71,9 @@ export default function Card({ movie, sessionId }) {
     <article className="card">
       <div className="card__description">
         <div className="card__header">
-          <img className="card__img" alt="movie poster" src={posterUrl} />
+          <div className="card__img-wrapper">
+            <img className="card__img" alt="movie poster" src={posterUrl} />
+          </div>
           <div className="card__header-inner">
             <h2 className="card__title">{title}</h2>
             <span className="card__date">{formatDate}</span>
@@ -94,10 +98,6 @@ export default function Card({ movie, sessionId }) {
   )
 }
 
-Card.defaultProps = {
-  sessionId: '',
-  movie: {},
-}
 Card.propTypes = {
   sessionId: PropTypes.string,
   movie: PropTypes.object,

@@ -9,7 +9,7 @@ import MovieDBService from '../../services/movies-db'
 const { ErrorBoundary } = Alert
 const moviesDB = new MovieDBService()
 
-export default function SearchContainer({ sessionId }) {
+export default function SearchContainer({ sessionId = '' }) {
   const [movies, setMovies] = useState([])
   const [isLoaded, setIsLoaded] = useState(true)
   const [error, setError] = useState(null)
@@ -35,6 +35,7 @@ export default function SearchContainer({ sessionId }) {
     )
   }
   const changePage = (page) => {
+    setIsLoaded(false)
     moviesDB.getData(value, page).then(
       ({ results, totalPages, page, totalResults }) => {
         setPages({ page, totalPages, totalResults })
@@ -97,10 +98,6 @@ export default function SearchContainer({ sessionId }) {
       </div>
     </ErrorBoundary>
   )
-}
-
-SearchContainer.defaultProps = {
-  sessionId: '',
 }
 
 SearchContainer.propTypes = {

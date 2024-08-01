@@ -8,13 +8,14 @@ import MovieDBService from '../../services/movies-db'
 const { ErrorBoundary } = Alert
 const moviesDB = new MovieDBService()
 
-export default function Rated({ sessionId, isActive }) {
+export default function Rated({ sessionId = '', isActive = false }) {
   const [movies, setMovies] = useState([])
   const [isLoaded, setIsLoaded] = useState(true)
   const [error, setError] = useState(null)
   const [pages, setPages] = useState({ page: 0, totalPages: 0, totalResults: 0 })
 
   useEffect(() => {
+    setIsLoaded(false)
     if (isActive) {
       moviesDB.getRated(sessionId).then(
         ({ results, totalPages, page, totalResults }) => {
@@ -33,6 +34,7 @@ export default function Rated({ sessionId, isActive }) {
   }, [isActive, sessionId])
 
   const changePage = (page) => {
+    setIsLoaded(false)
     moviesDB.getRated(sessionId, page).then(
       ({ results, totalPages, page, totalResults }) => {
         setPages({ page, totalPages, totalResults })
@@ -97,10 +99,6 @@ export default function Rated({ sessionId, isActive }) {
   )
 }
 
-Rated.defaultProps = {
-  sessionId: '',
-  isActive: false,
-}
 Rated.propTypes = {
   sessionId: PropTypes.string,
   isActive: PropTypes.bool,
