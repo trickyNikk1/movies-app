@@ -1,8 +1,11 @@
 import React, { useEffect, useState } from 'react'
+import PropTypes from 'prop-types'
 import { Spin, Alert, Pagination } from 'antd'
 import './rated.css'
 import Cards from '../cards'
 import MovieDBService from '../../services/movies-db'
+
+const { ErrorBoundary } = Alert
 const moviesDB = new MovieDBService()
 
 export default function Rated({ sessionId, isActive }) {
@@ -81,13 +84,24 @@ export default function Rated({ sessionId, isActive }) {
       />
     ) : null
   return (
-    <div className="rated">
-      <div className="rated__body">
-        {renderErrorMessage(error)}
-        {spinner}
-        {cards}
-        {pagination}
+    <ErrorBoundary>
+      <div className="rated">
+        <div className="rated__body">
+          {renderErrorMessage(error)}
+          {spinner}
+          {cards}
+          {pagination}
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   )
+}
+
+Rated.defaultProps = {
+  sessionId: '',
+  isActive: false,
+}
+Rated.propTypes = {
+  sessionId: PropTypes.string,
+  isActive: PropTypes.bool,
 }

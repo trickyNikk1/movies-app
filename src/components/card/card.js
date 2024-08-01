@@ -1,4 +1,5 @@
 import { Rate } from 'antd'
+import PropTypes from 'prop-types'
 import { format, parseISO } from 'date-fns'
 import './card.css'
 import noPosterPic from './no-poster.png'
@@ -91,4 +92,13 @@ export default function Card({ movie, sessionId }) {
       <MediaQuery maxWidth={520}>{cardMobile}</MediaQuery>
     </>
   )
+}
+
+Card.defaultProps = {
+  sessionId: '',
+  movie: {},
+}
+Card.propTypes = {
+  sessionId: PropTypes.string,
+  movie: PropTypes.object,
 }

@@ -5,6 +5,7 @@ import MovieDBService from '../../services/movies-db'
 import SearchContainer from '../search-container'
 import Rated from '../rated'
 import { GenresProvider } from '../genres-context'
+const { ErrorBoundary } = Alert
 
 export default function MoviesApp() {
   const [guestSessionId, setGuestSessionId] = useState('')
@@ -98,8 +99,10 @@ export default function MoviesApp() {
   )
   const app = <section className="movies-app container">{error ? renderErrorMessage(error) : tabs}</section>
   return (
-    <GenresProvider value={genres}>
-      <main className="main">{isOnline ? app : offlineMessage}</main>
-    </GenresProvider>
+    <ErrorBoundary>
+      <GenresProvider value={genres}>
+        <main className="main">{isOnline ? app : offlineMessage}</main>
+      </GenresProvider>
+    </ErrorBoundary>
   )
 }

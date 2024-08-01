@@ -1,9 +1,12 @@
 import React, { useState } from 'react'
+import PropTypes from 'prop-types'
 import { Spin, Alert, Input, Pagination } from 'antd'
 import { debounce } from 'lodash'
 import './search-container.css'
 import Cards from '../cards'
 import MovieDBService from '../../services/movies-db'
+
+const { ErrorBoundary } = Alert
 const moviesDB = new MovieDBService()
 
 export default function SearchContainer({ sessionId }) {
@@ -82,14 +85,24 @@ export default function SearchContainer({ sessionId }) {
       />
     ) : null
   return (
-    <div className="search-container">
-      <Input type="search" onChange={debounce(search, 600)} placeholder="Type to search..." autoFocus />
-      <div className="search-container__body">
-        {renderErrorMessage(error)}
-        {spinner}
-        {cards}
-        {pagination}
+    <ErrorBoundary>
+      <div className="search-container">
+        <Input type="search" onChange={debounce(search, 600)} placeholder="Type to search..." autoFocus />
+        <div className="search-container__body">
+          {renderErrorMessage(error)}
+          {spinner}
+          {cards}
+          {pagination}
+        </div>
       </div>
-    </div>
+    </ErrorBoundary>
   )
+}
+
+SearchContainer.defaultProps = {
+  sessionId: '',
+}
+
+SearchContainer.propTypes = {
+  sessionId: PropTypes.string,
 }
